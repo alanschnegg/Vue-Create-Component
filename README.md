@@ -1,7 +1,7 @@
 # Vue-Create-Component  
 CLI util for create Vue js component made in bash  
 
-Greatly inspired by [vue-generate-component](https://www.npmjs.com/package/vue-generate-component), but there were some things I didn't like, so I decided to do it all again  
+Greatly inspired by [vue-generate-component](https://www.npmjs.com/package/vue-generate-component), but there were some things I didn't like, so I decided to do it in my own way  
 
 ## Installation
 
