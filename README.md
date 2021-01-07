@@ -67,6 +67,8 @@ export default {
 <style src="./Component.scss" scoped lang="scss"></style>
 ```  
 
+---------------------------
+
 ### Create a single files component
 ```
 vcc -s Component
@@ -97,4 +99,32 @@ It will create a file named "Component.vue":
     .Component {
     }
 </style>
+```  
+
+---------------------------------
+
+### Others options
+
+You can create several components at the same time
+```
+vcc -s(or -m) Component1 Component2 Component3
+```  
+
+If you don't precise the type of component you want, the script will ask you which
+```
+$> vcc Component
+Multiple / single file (m/s): 
+```
+
+It also works in the other way
+```
+$> vcc -s
+Component name: 
+```  
+
+And if you are too lazy to use arguments, the script will ask them for you
+```
+$> vcc
+Component name: 
+Multiple / single file (m/s):
 ```  
