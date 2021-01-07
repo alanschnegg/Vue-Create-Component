@@ -1,0 +1,332 @@
+#!/bin/bash
+# A simple script to automate the creation of VueJS component
+
+
+displayHelp() {
+    echo "Usage: $(basename $0) ([OPTION] [COMPONENT NAME 1] [COMPONENT NAME 2]...)"
+    echo ""
+    echo ""
+    echo "Option:"
+    echo -e "\t-m\tCreate new component multiple file (component.js, component.html, component.scss, component.vue)"
+    echo -e "\t-s\tCreate new component single file (component.vue)"
+    exit 0
+}
+
+
+
+invalidOption() {
+    >&2 echo "$(basename $0): invalid option -- '$1'"
+    >&2 echo "Try '$(basename $0) --help' for more information."
+    exit 1
+}
+
+
+
+getComponentName() {
+    read -p "Component name: " name
+    echo "$name"
+}
+
+
+tryTouch() {
+    touch $1 > /dev/null 2>&1
+    if [[ ! $? = 0 ]]
+    then
+        >&2 echo "$(basename $0): invalid component name or permission denied"
+        exit 1
+    fi
+}
+
+
+
+
+getOption() {
+    flags=("$@")
+
+    for i in "${flags[@]}"
+    do
+        if [[ $i = --* ]]
+        then
+            if [[ ${i:2} = "help" ]]
+            then
+                echo "help"
+                return
+            fi
+        else
+            if [[ ${i:1} = "h" ]]
+            then
+                echo "help"
+                return
+            fi
+        fi
+    done
+
+    option=""
+    for i in "${flags[@]}"
+    do
+        if [[ $i = --* ]]
+        then
+            if [[ ! ${i:2} = "multiple" ]] && [[ ! ${i:2} = "single" ]]
+            then
+                echo "error"
+                return
+            else
+                option=${i:2}
+            fi
+        else
+            if [[ ${i:1} = "m" ]]
+            then
+                option="multiple"
+            elif [[ ${i:1} = "s" ]]
+            then
+                option="single"
+            else
+                echo "error"
+                return
+            fi
+        fi
+    done
+
+    if [[ -z $option ]]
+    then
+        while true; do
+            read -p "Multiple / single file (m/s): " option
+            case $option in
+                multiple | Multiple | m | M ) option="multiple"; break;;
+                single | single | s | S ) option="single"; break;;
+                * ) >&2 echo -e "\nPlease answer multiple or single.";;
+            esac
+        done
+    fi
+
+    echo $option
+}
+
+
+
+
+
+
+multipleFile() {
+
+    # Directory creation
+
+    if [[ ! -d "$1" ]]
+    then
+        mkdir -p $1
+        if [[ ! $? = 0 ]]
+        then
+            >&2 echo "$(basename $0): invalid component name"
+            exit 22
+        fi
+        echo "Created $1/"
+    fi
+
+
+
+
+    # Creating the Script file
+    tryTouch "$1/$(basename $1).js"
+
+    echo "export default {" > $1/$(basename $1).js
+    echo "    name: '$(basename $1)'," >> $1/$(basename $1).js
+    echo "    props: []," >> $1/$(basename $1).js
+    echo "    mounted() {}," >> $1/$(basename $1).js
+    echo "    data() {" >> $1/$(basename $1).js
+    echo "        return {};" >> $1/$(basename $1).js
+    echo "    }," >> $1/$(basename $1).js
+    echo "    methods: {}," >> $1/$(basename $1).js
+    echo "    computed: {}" >> $1/$(basename $1).js
+    echo "}" >> $1/$(basename $1).js
+
+    echo "Creating $1/$(basename $1).js"
+
+
+
+
+    # Creating the HTML file
+    tryTouch "$1/$(basename $1).html"
+
+
+    echo "<section class=\"$(basename $1)\">" > $1/$(basename $1).html
+    echo "    <h1>$(basename $1) Component</h1>" >> $1/$(basename $1).html
+    echo "</section>" >> $1/$(basename $1).html
+
+    echo "Creating $1/$(basename $1).html"
+
+
+
+
+    # Creating the Style file
+    tryTouch "$1/$(basename $1).scss"
+
+
+    echo ".$(basename $1) {" > $1/$(basename $1).scss
+    echo "}" >> $1/$(basename $1).scss
+
+    echo "Creating $1/$(basename $1).scss"
+
+
+
+
+    # Creating the Vue file
+    tryTouch "$1/$(basename $1).vue"
+
+
+    echo "<template src=\"./$(basename $1).html\" lang=\"html\"></template>" > $1/$(basename $1).vue
+    echo "<script src=\"./$(basename $1).js\" lang=\"js\"></script>" >> $1/$(basename $1).vue
+    echo "<style src=\"./$(basename $1).scss\" scoped lang=\"scss\"></style>" >> $1/$(basename $1).vue
+
+    echo "Created $1/$(basename $1).vue"
+
+
+
+    echo "$(basename $1) component created !"
+
+}
+
+
+
+
+
+singleFile() {
+
+    # Directory creation
+
+    if [[ ! -d "$(dirname $1)" ]]
+    then
+        mkdir -p $(dirname $1)
+        echo "Created $(dirname $1)/"
+    fi
+
+    tryTouch "$1.vue"
+
+    # Writing the Template file
+
+    echo "<template lang=\"html\">" > $1.vue
+    echo "    <section class=\"$(basename $1)\">" >> $1.vue
+    echo "        <h1>$(basename $1) Component</h1>" >> $1.vue
+    echo "    </section>" >> $1.vue
+    echo "</template>" >> $1.vue
+
+
+    echo "" >> $1.vue
+
+
+    # Writing the Script file
+
+    echo "<script lang=\"js\">" >> $1.vue
+    echo "    export default {" >> $1.vue
+    echo "        name: '$(basename $1)'," >> $1.vue
+    echo "        props: []," >> $1.vue
+    echo "        mounted() {}," >> $1.vue
+    echo "        data() {" >> $1.vue
+    echo "            return {};" >> $1.vue
+    echo "        }," >> $1.vue
+    echo "        methods: {}," >> $1.vue
+    echo "        computed: {}" >> $1.vue
+    echo "    }" >> $1.vue
+    echo "</script>" >> $1.vue
+
+
+    echo "" >> $1.vue
+
+
+    # Writing the Style file
+
+    echo "<style scoped lang=\"scss\">" >> $1.vue
+    echo "    .$(basename $1) {" >> $1.vue
+    echo "    }" >> $1.vue
+    echo "</style>" >> $1.vue
+
+
+    echo "Created $1.vue"
+    echo "$(basename $1) component created !"
+}
+
+
+
+
+createFile() {
+    if [[ $1 = "multiple" ]]
+    then
+        multipleFile $2
+    elif [[ $1 = "single" ]]
+    then
+        singleFile $2
+    fi
+}
+
+
+
+
+
+
+# No arguments gestion
+
+if [ -z "$1" ]
+then
+    name="$(getComponentName)"
+    while true; do
+        read -p "Multiple / single file (m/s): " option
+        case $option in
+            multiple | Multiple | m | M ) multipleFile "$name"; break;;
+            single | single | s | S ) singleFile "$name"; break;;
+            * ) echo -e "\nPlease answer multiple or single.";;
+        esac
+    done
+    exit 0
+fi
+
+
+
+
+# Put all component names in an array 'names' and all flag in 'flags'
+
+indexNames=0
+indexFlags=0
+for i in $*
+do
+    if [[ ! $i = -* ]]
+    then
+        names[$indexNames]=$i
+        indexNames=$((indexNames+1))
+    else
+        flags[$indexFlags]=$i
+        indexFlags=$((indexFlags+1))
+    fi
+done
+
+
+
+
+
+option=`getOption "${flags[@]}"`
+
+if [[ $option = "error" ]]
+then
+    invalidOption
+elif [[ $option = "help" ]]
+then
+    displayHelp
+fi
+
+
+
+if [[ ${#names[@]} = 0 ]]
+then
+    name="$(getComponentName)"
+    createFile $option $name
+else
+    for (( i=0; i < ${#names[@]}; i++ ))
+    do
+        createFile $option ${names[$i]}
+        if [[ $(($i+1)) < ${#names[@]} ]]
+        then
+            echo ""
+        fi
+    done
+fi
+
+
+exit 0
