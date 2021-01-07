@@ -23,7 +23,13 @@ invalidOption() {
 
 
 getComponentName() {
-    read -p "Component name: " name
+    while true; do
+        read -p "Component name: " name
+        if [ ! -z "$name" ]
+        then
+            break
+        fi
+    done
     echo "$name"
 }
 
